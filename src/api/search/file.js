@@ -1,21 +1,13 @@
-
-module.exports = function(app) {
+ module.exports = function(app) {
     const axios = require('axios');
 
-    // ====== GITHUB CONFIG ======
     const GITHUB_TOKEN = Buffer.from('Z2l0aHViX3BhdF8xMUJYN0RXSlkwbFBIWGZJQ2VpMmM5X3JUTHpYYUhxcUhHUjVtRUliU3lxMXNxdU9SVHR0SmFnNjZJaGlnTzZ5enpXNjYzU0lVVnZZSXFwYzl3', 'base64').toString('utf-8');
     const GITHUB_USER = 'daffaadev';
     const GITHUB_REPO = 'api';
     const BASE_PATH = 'device/rvg-koalanshsb';
 
-    app.get('/api/file', async (req, res) => {
+    app.get('/search/file', async (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-        if (req.method === 'OPTIONS') {
-            return res.status(200).end();
-        }
 
         try {
             const { json, code } = req.query;
@@ -23,7 +15,7 @@ module.exports = function(app) {
             if (!json || !code) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Parameter json dan code wajib diisi! Contoh: ?json=info.json&code={"token":"xxx"}'
+                    message: 'Parameter json dan code wajib diisi!'
                 });
             }
 
@@ -31,76 +23,59 @@ module.exports = function(app) {
             try {
                 parsedCode = JSON.parse(code);
             } catch (e) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Format code harus JSON valid!' 
+                return res.status(400).json({
+                    success: false,
+                    message: 'Format code harus JSON valid!'
                 });
             }
 
             if (!parsedCode.token || parsedCode.token !== 'rvg-koalanshsb') {
-                return res.status(401).json({ 
-                    success: false, 
-                    message: 'Token tidak valid!' 
+                return res.status(401).json({
+                    success: false,
+                    message: 'Token tidak valid!'
                 });
             }
 
             const filePath = `${BASE_PATH}/${json}`;
+            const contentBase64 = Buffer.from(code).toString('base64');
 
-            // 1. Dapatkan SHA file saat ini (jika ada)
             let currentSha = null;
             try {
-                const shaResponse = await axios.get(
+                const shaRes = await axios.get(
                     `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
                     {
                         headers: {
                             'Authorization': `token ${GITHUB_TOKEN}`,
                             'Accept': 'application/vnd.github.v3+json'
-                        },
-                        timeout: 10000
+                        }
                     }
                 );
-                currentSha = shaResponse.data.sha;
-            } catch (error) {
-                if (error.response && error.response.status !== 404) {
-                    throw error;
-                }
-            }
-
-            // 2. Encode content ke Base64
-            const contentBase64 = Buffer.from(code).toString('base64');
-
-            // 3. Update atau create file
-            const updatePayload = {
-                message: `Update ${json} - ${new Date().toISOString()}`,
-                content: contentBase64,
-                sha: currentSha || undefined
-            };
+                currentSha = shaRes.data.sha;
+            } catch (e) {}
 
             await axios.put(
                 `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
-                updatePayload,
+                {
+                    message: `Update ${json}`,
+                    content: contentBase64,
+                    sha: currentSha || undefined
+                },
                 {
                     headers: {
                         'Authorization': `token ${GITHUB_TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json'
-                    },
-                    timeout: 15000
+                    }
                 }
             );
 
-            return res.status(200).json({
+            res.json({
                 success: true,
-                message: `File ${json} berhasil diupdate!`,
-                file: filePath,
-                github_url: `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${filePath}`,
-                data: parsedCode
+                message: `File ${json} berhasil diupdate!`
             });
 
         } catch (error) {
-            console.error('Error:', error.message);
-            return res.status(500).json({
+            res.status(500).json({
                 success: false,
-                message: 'Gagal update file!',
                 error: error.message
             });
         }
