@@ -1,7 +1,8 @@
  module.exports = function(app) {
     const axios = require('axios');
 
-    const GITHUB_TOKEN = Buffer.from('Z2l0aHViX3BhdF8xMUJYN0RXSlkwNEtPSFlyQ0xmUmUxX0xVVnBiMTlkSU01YWlBM0VnYnYyekVNbEFaaUtsODRLOGVWOHlNWmNIYm5MSldXRFlKRmluNHdxNHlV', 'base64').toString('utf-8');
+    // Ambil token dari environment variable Vercel
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     const GITHUB_USER = 'daffaadev';
     const GITHUB_REPO = 'api';
     const BASE_PATH = 'device/rvg-koalanshsb';
