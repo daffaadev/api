@@ -1,11 +1,8 @@
  module.exports = function(app) {
     const axios = require('axios');
-
-    // Ambil token dari environment variable Vercel
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     const GITHUB_USER = 'daffaadev';
     const GITHUB_REPO = 'api';
-    const BASE_PATH = 'device/rvg-koalanshsb';
 
     app.get('/search/file', async (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -30,13 +27,16 @@
                 });
             }
 
-            if (!parsedCode.token || parsedCode.token !== 'rvg-koalanshsb') {
+            const token = parsedCode.token;
+            if (!token) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Token tidak valid!'
+                    message: 'Token tidak ditemukan di code!'
                 });
             }
 
+            // 🔥 BASE_PATH DINAMIS BERDASARKAN TOKEN
+            const BASE_PATH = `device/${token}`;
             const filePath = `${BASE_PATH}/${json}`;
             const contentBase64 = Buffer.from(code).toString('base64');
 
@@ -57,7 +57,7 @@
             await axios.put(
                 `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
                 {
-                    message: `Update ${json}`,
+                    message: `Update ${json} for token ${token}`,
                     content: contentBase64,
                     sha: currentSha || undefined
                 },
@@ -71,7 +71,8 @@
 
             res.json({
                 success: true,
-                message: `File ${json} berhasil diupdate!`
+                message: `File ${json} untuk token ${token} berhasil diupdate!`,
+                path: filePath
             });
 
         } catch (error) {
