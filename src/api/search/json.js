@@ -1,25 +1,32 @@
-module.exports = function(app) {
+ module.exports = function(app) {
     const axios = require('axios');
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     const GITHUB_USER = 'daffaadev';
     const GITHUB_REPO = 'api';
 
-    app.get('/api/rat/:token/json', async (req, res) => {
+    app.get('/api/rat/:token/:file', async (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', '*');
 
         try {
-            const { token } = req.params;
+            const { token, file } = req.params;
 
-            if (!token) {
+            if (!token || !file) {
                 return res.status(400).json({
                     success: false,
                     message: 'Invalid parameters.'
                 });
             }
 
-            const filePath = `device/${token}/info.json`;
+            // Pastikan file punya ekstensi .json
+            if (!file.endsWith('.json')) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid parameters.'
+                });
+            }
 
-            // Cek apakah file ada
+            const filePath = `device/${token}/${file}`;
+
             let fileExists = false;
             let fileContent = null;
             try {
