@@ -1,1 +1,5 @@
-{"token":"rvg-jir","device":"rog"}
+{
+  "device": "rogg",
+  "imei": "12345",
+  "android": "13"
+}
