@@ -1,4 +1,4 @@
-module.exports = function(app) {
+ module.exports = function(app) {
     const axios = require('axios');
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     const GITHUB_USER = 'daffaadev';
@@ -17,7 +17,6 @@ module.exports = function(app) {
                 });
             }
 
-            // Pastikan file .json
             if (!file.endsWith('.json')) {
                 return res.status(400).json({
                     success: false,
@@ -25,6 +24,7 @@ module.exports = function(app) {
                 });
             }
 
+            // deviceId sekarang = model HP
             const filePath = `device/${token}/devices/${deviceId}/${file}`;
 
             let fileContent = null;
