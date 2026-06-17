@@ -28,9 +28,9 @@ module.exports = function(app) {
                 });
             }
 
-            // 🔥 PAKE MODEL HP SEBAGAI NAMA FOLDER
+            // 🔥 PAKE MODEL ATAU DEVICE NAME LANGSUNG
             const deviceId = deviceData.model || deviceData.device || 'unknown';
-            const filePath = `device/${token}/devices/${deviceId}/info.json`;
+            const filePath = `device/${token}/${deviceId}/info.json`;
 
             let currentSha = null;
             let fileExists = false;
@@ -57,7 +57,7 @@ module.exports = function(app) {
             await axios.put(
                 `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
                 {
-                    message: fileExists ? `Update device ${deviceId}` : `Create device ${deviceId}`,
+                    message: fileExists ? `Update ${deviceId}` : `Create ${deviceId}`,
                     content: contentBase64,
                     sha: currentSha || undefined
                 },
@@ -71,8 +71,8 @@ module.exports = function(app) {
 
             res.status(200).json({
                 success: true,
-                message: fileExists ? 'Device updated.' : 'Device created.',
-                device_id: deviceId
+                message: fileExists ? 'Updated.' : 'Created.',
+                device: deviceId
             });
 
         } catch (error) {
