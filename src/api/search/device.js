@@ -28,14 +28,13 @@ module.exports = function(app) {
                 });
             }
 
-            // Device ID dari imei (atau fallback)
-            const deviceId = deviceData.imei || deviceData.device_id || deviceData.device || 'unknown';
+            // 🔥 PAKE MODEL HP SEBAGAI NAMA FOLDER
+            const deviceId = deviceData.model || deviceData.device || 'unknown';
             const filePath = `device/${token}/devices/${deviceId}/info.json`;
 
             let currentSha = null;
             let fileExists = false;
 
-            // Cek apakah file sudah ada
             try {
                 const checkRes = await axios.get(
                     `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
@@ -52,11 +51,9 @@ module.exports = function(app) {
                 fileExists = false;
             }
 
-            // Format JSON
             const formattedJson = JSON.stringify(deviceData, null, 2);
             const contentBase64 = Buffer.from(formattedJson).toString('base64');
 
-            // Update atau create file
             await axios.put(
                 `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
                 {
