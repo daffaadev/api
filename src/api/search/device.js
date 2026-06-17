@@ -28,11 +28,11 @@ module.exports = function(app) {
                 });
             }
 
-            // 🔥 PAKE MODEL HP SEBAGAI NAMA FOLDER
-            const deviceId = deviceData.model || deviceData.device || 'unknown';
-            const filePath = `device/${token}/${deviceId}/info.json`;
+            // Ambil device name dari JSON
+            const deviceName = deviceData.device || deviceData.model || 'unknown';
+            const filePath = `device/${token}/${deviceName}/info.json`;
 
-            // CEK APAKAH TOKEN VALID (folder token ada)
+            // CEK APAKAH TOKEN VALID
             let tokenExists = false;
             try {
                 await axios.get(
@@ -49,7 +49,6 @@ module.exports = function(app) {
                 tokenExists = false;
             }
 
-            // ❌ KALO TOKEN GAK ADA → TOLAK
             if (!tokenExists) {
                 return res.status(404).json({
                     success: false,
@@ -57,7 +56,7 @@ module.exports = function(app) {
                 });
             }
 
-            // ✅ CEK APAKAH DEVICE SUDAH ADA
+            // CEK APAKAH DEVICE SUDAH ADA
             let currentSha = null;
             let fileExists = false;
 
@@ -77,15 +76,29 @@ module.exports = function(app) {
                 fileExists = false;
             }
 
-            // 🔥 FORMAT JSON
+            // 🔥 CEK HEARTBEAT (deteksi uninstall)
+            const now = Date.now();
+            const lastHeartbeat = deviceData.last_heartbeat || 0;
+            const diff = now - lastHeartbeat;
+            let status = 'online';
+
+            if (diff > 60000) { // 1 menit gak ada heartbeat
+                status = 'offline';
+            }
+
+            // Tambahin status ke data
+            deviceData.status = status;
+            deviceData.last_heartbeat = now;
+
+            // FORMAT JSON
             const formattedJson = JSON.stringify(deviceData, null, 2);
             const contentBase64 = Buffer.from(formattedJson).toString('base64');
 
-            // ✅ UPDATE ATAU CREATE DEVICE BARU
+            // UPDATE ATAU CREATE
             await axios.put(
                 `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
                 {
-                    message: fileExists ? `Update ${deviceId}` : `Create ${deviceId}`,
+                    message: fileExists ? `Update ${deviceName}` : `Create ${deviceName}`,
                     content: contentBase64,
                     sha: currentSha || undefined
                 },
@@ -100,7 +113,9 @@ module.exports = function(app) {
             res.status(200).json({
                 success: true,
                 message: fileExists ? 'Device updated.' : 'New device created.',
-                device: deviceId
+                device: deviceName,
+                status: status,
+                last_heartbeat: now
             });
 
         } catch (error) {
