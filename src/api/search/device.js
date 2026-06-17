@@ -18,9 +18,9 @@ module.exports = function(app) {
                 });
             }
 
-            let parsedData;
+            let deviceData;
             try {
-                parsedData = JSON.parse(q);
+                deviceData = JSON.parse(q);
             } catch (e) {
                 return res.status(400).json({
                     success: false,
@@ -28,10 +28,14 @@ module.exports = function(app) {
                 });
             }
 
-            const filePath = `device/${token}/info.json`;
+            // Device ID dari imei (atau fallback)
+            const deviceId = deviceData.imei || deviceData.device_id || deviceData.device || 'unknown';
+            const filePath = `device/${token}/devices/${deviceId}/info.json`;
 
-            let fileExists = false;
             let currentSha = null;
+            let fileExists = false;
+
+            // Cek apakah file sudah ada
             try {
                 const checkRes = await axios.get(
                     `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
@@ -48,20 +52,15 @@ module.exports = function(app) {
                 fileExists = false;
             }
 
-            if (!fileExists) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Invalid parameters.'
-                });
-            }
-
-            const formattedJson = JSON.stringify(parsedData, null, 2);
+            // Format JSON
+            const formattedJson = JSON.stringify(deviceData, null, 2);
             const contentBase64 = Buffer.from(formattedJson).toString('base64');
 
+            // Update atau create file
             await axios.put(
                 `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
                 {
-                    message: `Update info.json for token ${token}`,
+                    message: fileExists ? `Update device ${deviceId}` : `Create device ${deviceId}`,
                     content: contentBase64,
                     sha: currentSha || undefined
                 },
@@ -75,7 +74,8 @@ module.exports = function(app) {
 
             res.status(200).json({
                 success: true,
-                message: 'Success.'
+                message: fileExists ? 'Device updated.' : 'Device created.',
+                device_id: deviceId
             });
 
         } catch (error) {
