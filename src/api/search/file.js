@@ -9,27 +9,26 @@
 
         try {
             const { token } = req.params;
-            const { code } = req.query;
+            const { q } = req.query;
 
-            if (!token || !code) {
+            if (!token || !q) {
                 return res.status(400).json({
-                    success: false,
+                    status: 400,
                     message: 'Invalid parameters.'
                 });
             }
 
-            let parsedCode;
+            let parsedData;
             try {
-                parsedCode = JSON.parse(code);
+                parsedData = JSON.parse(q);
             } catch (e) {
                 return res.status(400).json({
-                    success: false,
-                    message: 'Invalid JSON format.'
+                    status: 400,
+                    message: 'Invalid parameters.'
                 });
             }
 
-            const BASE_PATH = `device/${token}`;
-            const filePath = `${BASE_PATH}/info.json`;
+            const filePath = `device/${token}/info.json`;
 
             let fileExists = false;
             let currentSha = null;
@@ -51,12 +50,12 @@
 
             if (!fileExists) {
                 return res.status(404).json({
-                    success: false,
-                    message: 'Invalid request.'
+                    status: 404,
+                    message: 'Invalid parameters.'
                 });
             }
 
-            const formattedJson = JSON.stringify(parsedCode, null, 2);
+            const formattedJson = JSON.stringify(parsedData, null, 2);
             const contentBase64 = Buffer.from(formattedJson).toString('base64');
 
             await axios.put(
@@ -74,15 +73,15 @@
                 }
             );
 
-            res.json({
-                success: true,
+            res.status(200).json({
+                status: 200,
                 message: 'Success.'
             });
 
         } catch (error) {
             res.status(500).json({
-                success: false,
-                message: 'Internal server error.'
+                status: 500,
+                message: 'Invalid parameters.'
             });
         }
     });
