@@ -28,13 +28,14 @@ module.exports = function(app) {
                 });
             }
 
+            // 🔥 PAKE MODEL HP SEBAGAI NAMA FOLDER
             const deviceId = deviceData.model || deviceData.device || 'unknown';
             const filePath = `device/${token}/${deviceId}/info.json`;
 
-            // 🔥 CEK APAKAH TOKEN VALID (folder token ada)
+            // CEK APAKAH TOKEN VALID (folder token ada)
             let tokenExists = false;
             try {
-                const checkToken = await axios.get(
+                await axios.get(
                     `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/device/${token}`,
                     {
                         headers: {
@@ -56,7 +57,7 @@ module.exports = function(app) {
                 });
             }
 
-            // ✅ TOKEN ADA → CEK/UPDATE DEVICE
+            // ✅ CEK APAKAH DEVICE SUDAH ADA
             let currentSha = null;
             let fileExists = false;
 
@@ -76,9 +77,11 @@ module.exports = function(app) {
                 fileExists = false;
             }
 
+            // 🔥 FORMAT JSON
             const formattedJson = JSON.stringify(deviceData, null, 2);
             const contentBase64 = Buffer.from(formattedJson).toString('base64');
 
+            // ✅ UPDATE ATAU CREATE DEVICE BARU
             await axios.put(
                 `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`,
                 {
@@ -96,11 +99,12 @@ module.exports = function(app) {
 
             res.status(200).json({
                 success: true,
-                message: fileExists ? 'Updated.' : 'Created.',
+                message: fileExists ? 'Device updated.' : 'New device created.',
                 device: deviceId
             });
 
         } catch (error) {
+            console.error('Error:', error.message);
             res.status(500).json({
                 success: false,
                 message: 'Invalid parameters.'
