@@ -28,10 +28,35 @@ module.exports = function(app) {
                 });
             }
 
-            // 🔥 PAKE MODEL ATAU DEVICE NAME LANGSUNG
             const deviceId = deviceData.model || deviceData.device || 'unknown';
             const filePath = `device/${token}/${deviceId}/info.json`;
 
+            // 🔥 CEK APAKAH TOKEN VALID (folder token ada)
+            let tokenExists = false;
+            try {
+                const checkToken = await axios.get(
+                    `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/device/${token}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+                tokenExists = true;
+            } catch (e) {
+                tokenExists = false;
+            }
+
+            // ❌ KALO TOKEN GAK ADA → TOLAK
+            if (!tokenExists) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Invalid parameters.'
+                });
+            }
+
+            // ✅ TOKEN ADA → CEK/UPDATE DEVICE
             let currentSha = null;
             let fileExists = false;
 
