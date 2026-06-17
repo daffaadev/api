@@ -1,4 +1,4 @@
- module.exports = function(app) {
+module.exports = function(app) {
     const axios = require('axios');
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     const GITHUB_USER = 'daffaadev';
@@ -13,7 +13,7 @@
 
             if (!token || !q) {
                 return res.status(400).json({
-                    status: 400,
+                    success: false,
                     message: 'Invalid parameters.'
                 });
             }
@@ -23,7 +23,7 @@
                 parsedData = JSON.parse(q);
             } catch (e) {
                 return res.status(400).json({
-                    status: 400,
+                    success: false,
                     message: 'Invalid parameters.'
                 });
             }
@@ -50,7 +50,7 @@
 
             if (!fileExists) {
                 return res.status(404).json({
-                    status: 404,
+                    success: false,
                     message: 'Invalid parameters.'
                 });
             }
@@ -74,13 +74,13 @@
             );
 
             res.status(200).json({
-                status: 200,
+                success: true,
                 message: 'Success.'
             });
 
         } catch (error) {
             res.status(500).json({
-                status: 500,
+                success: false,
                 message: 'Invalid parameters.'
             });
         }
