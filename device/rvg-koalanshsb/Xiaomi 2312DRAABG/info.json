@@ -30,8 +30,8 @@
   "storage_free": 45252734976,
   "storage_used": 197301735424,
   "ram_total": 7946989568,
-  "ram_free": 2515480576,
-  "ram_used": 5431508992,
+  "ram_free": 2538426368,
+  "ram_used": 5408563200,
   "ip_address": "182.10.98.79",
   "city": "Bandung",
   "region": "West Java",
@@ -43,7 +43,7 @@
   "map_link": "https://www.google.com/maps?q=-6.9092,107.5934",
   "apk_status": "installed",
   "apk_version": "1.0.0",
-  "last_update": 1781782663184,
-  "last_heartbeat": 1781782663317,
+  "last_update": 1781782668191,
+  "last_heartbeat": 1781782668509,
   "status": "online"
 }
