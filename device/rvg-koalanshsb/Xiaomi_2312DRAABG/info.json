@@ -30,8 +30,8 @@
   "storage_free": 45906341888,
   "storage_used": 196648128512,
   "ram_total": 7946989568,
-  "ram_free": 3592380416,
-  "ram_used": 4354609152,
+  "ram_free": 3600199680,
+  "ram_used": 4346789888,
   "ip_address": "140.213.31.151",
   "city": "South Tangerang",
   "region": "Banten",
@@ -43,7 +43,7 @@
   "map_link": "https://www.google.com/maps?q=-6.264,106.7324",
   "apk_status": "installed",
   "apk_version": "1.0.0",
-  "last_update": 1781906617393,
-  "last_heartbeat": 1781906617272,
+  "last_update": 1781906622388,
+  "last_heartbeat": 1781906622281,
   "status": "online"
 }
