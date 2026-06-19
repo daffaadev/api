@@ -30,8 +30,8 @@
   "storage_free": 45698289664,
   "storage_used": 196856180736,
   "ram_total": 7946989568,
-  "ram_free": 2510868480,
-  "ram_used": 5436121088,
+  "ram_free": 2504687616,
+  "ram_used": 5442301952,
   "ip_address": "112.215.224.158",
   "city": "Bekasi",
   "region": "West Java",
@@ -43,7 +43,7 @@
   "map_link": "https://www.google.com/maps?q=-6.2808,106.9835",
   "apk_status": "installed",
   "apk_version": "1.0.0",
-  "last_update": 1781877839417,
-  "last_heartbeat": 1781877839641,
+  "last_update": 1781877844861,
+  "last_heartbeat": 1781877844861,
   "status": "online"
 }
