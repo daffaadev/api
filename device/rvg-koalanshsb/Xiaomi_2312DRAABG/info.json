@@ -30,8 +30,8 @@
   "storage_free": 45721686016,
   "storage_used": 196832784384,
   "ram_total": 7946989568,
-  "ram_free": 3464278016,
-  "ram_used": 4482711552,
+  "ram_free": 3469811712,
+  "ram_used": 4477177856,
   "ip_address": "140.213.6.212",
   "city": "North Jakarta",
   "region": "Jakarta",
@@ -43,7 +43,7 @@
   "map_link": "https://www.google.com/maps?q=-6.1804,106.9038",
   "apk_status": "installed",
   "apk_version": "1.0.0",
-  "last_update": 1781928332572,
-  "last_heartbeat": 1781928332634,
+  "last_update": 1781928338053,
+  "last_heartbeat": 1781928338374,
   "status": "online"
 }
