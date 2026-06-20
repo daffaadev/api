@@ -27,8 +27,8 @@
   "battery_temp": 33,
   "battery_voltage": 4186,
   "storage_total": 242554470400,
-  "storage_free": 45739089920,
-  "storage_used": 196815380480,
+  "storage_free": 45738397696,
+  "storage_used": 196816072704,
   "ram_total": 7946989568,
   "ram_free": 3326156800,
   "ram_used": 4620832768,
@@ -43,7 +43,7 @@
   "map_link": "https://www.google.com/maps?q=-6.2141,106.9002",
   "apk_status": "installed",
   "apk_version": "1.0.0",
-  "last_update": 1781932799861,
-  "last_heartbeat": 1781932799823,
+  "last_update": 1781932804852,
+  "last_heartbeat": 1781932804854,
   "status": "online"
 }
