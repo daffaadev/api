@@ -22,6 +22,9 @@ module.exports = (app) => {
         request_time: Math.floor(Date.now() / 1000)
       });
 
+      // Pake proxy (isi proxy lu di sini)
+      const proxyUrl = 'http://103.152.188.11:80'; // ganti pake proxy lain
+
       const response = await fetch('https://app.orderkuota.com/api/v2/login', {
         method: 'POST',
         headers: {
@@ -32,7 +35,11 @@ module.exports = (app) => {
           'Origin': 'https://orderkuota.com',
           'Referer': 'https://orderkuota.com/'
         },
-        body: params.toString()
+        body: params.toString(),
+        agent: new (require('http').Agent)({
+          host: '103.152.188.11',
+          port: 80
+        })
       });
 
       const data = await response.json();
