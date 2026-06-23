@@ -10,26 +10,30 @@ module.exports = (app) => {
         });
       }
 
-      const response = await fetch(`https://www.xnxxx.com/search/${encodeURIComponent(query)}?type=media`, {
+      const response = await fetch(`https://www.xxxx.com/search/${encodeURIComponent(query)}`, {
         method: 'GET',
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'application/json',
-          'Accept-Language': 'id-ID,id;q=0.9'
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
         }
       });
 
-      const data = await response.json();
+      const html = await response.text();
 
-      // Filter cuma video dan foto
-      const filtered = {
-        videos: data.videos || [],
-        photos: data.photos || []
-      };
+      // Extract video URLs
+      const videoRegex = /https?:\/\/[^\s"']+\.(mp4|webm|avi|mov|mkv|m3u8)[^\s"']*/gi;
+      const videos = html.match(videoRegex) || [];
+
+      // Extract image URLs
+      const imageRegex = /https?:\/\/[^\s"']+\.(jpg|jpeg|png|gif|webp|bmp|svg)[^\s"']*/gi;
+      const photos = html.match(imageRegex) || [];
 
       return res.json({
         status: true,
-        result: filtered
+        result: {
+          videos: videos.slice(0, 20),
+          photos: photos.slice(0, 30)
+        }
       });
 
     } catch (e) {
