@@ -1,5 +1,3 @@
-const axios = require('axios');
-
 module.exports = (app) => {
   app.get('/orderkuota/login', async (req, res) => {
     try {
@@ -12,7 +10,7 @@ module.exports = (app) => {
         });
       }
 
-      const payload = new URLSearchParams({
+      const params = new URLSearchParams({
         username,
         password,
         app_reg_id: 'di309HvATsaiCppl5eDpoc',
@@ -24,21 +22,20 @@ module.exports = (app) => {
         request_time: Math.floor(Date.now() / 1000)
       });
 
-      const { data } = await axios.post(
-        'https://app.orderkuota.com/api/v2/login',
-        payload,
-        {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept-Language': 'id-ID,id;q=0.9',
-            'Origin': 'https://orderkuota.com',
-            'Referer': 'https://orderkuota.com/'
-          },
-          timeout: 30000
-        }
-      );
+      const response = await fetch('https://app.orderkuota.com/api/v2/login', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept-Language': 'id-ID,id;q=0.9',
+          'Origin': 'https://orderkuota.com',
+          'Referer': 'https://orderkuota.com/'
+        },
+        body: params.toString()
+      });
+
+      const data = await response.json();
 
       return res.json({
         status: true,
@@ -49,7 +46,7 @@ module.exports = (app) => {
       return res.status(500).json({
         status: false,
         error: e.message,
-        data: e.response?.data || null
+        data: null
       });
     }
   });
