@@ -10,36 +10,51 @@ module.exports = (app) => {
         });
       }
 
-      // Pake axios
       const axios = require('axios');
       
-      const response = await axios.get(`https://www.xnxx.com/search/${encodeURIComponent(query)}`, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'id-ID,id;q=0.9'
-        },
-        timeout: 30000,
-        httpsAgent: new (require('https').Agent)({
-          rejectUnauthorized: false
-        })
-      });
+      // Looping halaman 1-5
+      const allVideos = [];
+      const allPhotos = [];
 
-      const html = response.data;
+      for (let page = 1; page <= 5; page++) {
+        try {
+          const response = await axios.get(`https://www.xxx.com/search/${encodeURIComponent(query)}/${page}`, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'id-ID,id;q=0.9'
+            },
+            timeout: 30000,
+            httpsAgent: new (require('https').Agent)({
+              rejectUnauthorized: false
+            })
+          });
 
-      // Extract video URLs
-      const videoRegex = /https?:\/\/[^\s"']+\.(mp4|webm|avi|mov|mkv|m3u8)[^\s"']*/gi;
-      const videos = html.match(videoRegex) || [];
+          const html = response.data;
 
-      // Extract image URLs
-      const imageRegex = /https?:\/\/[^\s"']+\.(jpg|jpeg|png|gif|webp|bmp|svg)[^\s"']*/gi;
-      const photos = html.match(imageRegex) || [];
+          const videoRegex = /https?:\/\/[^\s"']+\.(mp4|webm|avi|mov|mkv|m3u8)[^\s"']*/gi;
+          const videos = html.match(videoRegex) || [];
+          allVideos.push(...videos);
+
+          const imageRegex = /https?:\/\/[^\s"']+\.(jpg|jpeg|png|gif|webp|bmp|svg)[^\s"']*/gi;
+          const photos = html.match(imageRegex) || [];
+          allPhotos.push(...photos);
+
+        } catch (e) {
+          continue;
+        }
+      }
 
       return res.json({
         status: true,
         result: {
-          videos: videos.slice(0, 20),
-          photos: photos.slice(0, 30)
+          query: query,
+          pagination: {
+            total_pages: 5,
+            scraped_pages: allVideos.length > 0 || allPhotos.length > 0 ? 5 : 0
+          },
+          videos: allVideos.slice(0, 50),
+          photos: allPhotos.slice(0, 50)
         }
       });
 
