@@ -10,15 +10,22 @@ module.exports = (app) => {
         });
       }
 
-      const response = await fetch(`https://www.xxxx.com/search/${encodeURIComponent(query)}`, {
-        method: 'GET',
+      // Pake axios
+      const axios = require('axios');
+      
+      const response = await axios.get(`https://www.xxxx.com/search/${encodeURIComponent(query)}`, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
-        }
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'id-ID,id;q=0.9'
+        },
+        timeout: 30000,
+        httpsAgent: new (require('https').Agent)({
+          rejectUnauthorized: false
+        })
       });
 
-      const html = await response.text();
+      const html = response.data;
 
       // Extract video URLs
       const videoRegex = /https?:\/\/[^\s"']+\.(mp4|webm|avi|mov|mkv|m3u8)[^\s"']*/gi;
