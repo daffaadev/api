@@ -10,25 +10,26 @@ module.exports = (app) => {
         });
       }
 
-      // Pake axios kalo fetch gagal di Vercel
-      const axios = require('axios');
-      
-      const response = await axios.get(`https://www.xnxx.com/search/${encodeURIComponent(query)}`, {
+      const response = await fetch(`https://www.xxxx.com/search/${encodeURIComponent(query)}?type=media`, {
+        method: 'GET',
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'id-ID,id;q=0.9',
-          'Accept-Encoding': 'gzip, deflate, br'
-        },
-        timeout: 30000,
-        httpsAgent: new (require('https').Agent)({
-          rejectUnauthorized: false
-        })
+          'Accept': 'application/json',
+          'Accept-Language': 'id-ID,id;q=0.9'
+        }
       });
+
+      const data = await response.json();
+
+      // Filter cuma video dan foto
+      const filtered = {
+        videos: data.videos || [],
+        photos: data.photos || []
+      };
 
       return res.json({
         status: true,
-        result: response.data
+        result: filtered
       });
 
     } catch (e) {
