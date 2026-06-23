@@ -33,9 +33,13 @@ module.exports = (app) => {
             'Connection': 'Keep-Alive',
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'okhttp/4.12.0'
+            'User-Agent': 'okhttp/4.12.0',
+            'X-Forwarded-For': '192.168.1.' + Math.floor(Math.random() * 255)
           },
-          timeout: 10000
+          timeout: 15000,
+          httpsAgent: new (require('https').Agent)({
+            rejectUnauthorized: false
+          })
         }
       );
 
