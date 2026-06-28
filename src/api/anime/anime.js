@@ -1,7 +1,7 @@
 module.exports = (app) => {
   app.get('/api/anime/search', async (req, res) => {
     try {
-      const { query, page = 1 } = req.query;
+      const { query } = req.query;
 
       if (!query) {
         return res.status(400).json({
@@ -11,10 +11,13 @@ module.exports = (app) => {
       }
 
       const axios = require('axios');
-      const cheerio = require('cheerio');
-
-      // Pake Jikan API (MyAnimeList) - NO BLOCK
-      const response = await axios.get(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&page=${page}&limit=20`, {
+      
+      const response = await axios.get(`https://api.jikan.moe/v4/anime`, {
+        params: {
+          q: query,
+          page: 1,
+          limit: 20
+        },
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         },
@@ -27,10 +30,11 @@ module.exports = (app) => {
       if (data.data) {
         data.data.forEach((item) => {
           results.push({
-            title: item.title || 'No title',
+            mal_id: item.mal_id,
+            title: item.title,
             title_english: item.title_english || null,
             title_japanese: item.title_japanese || null,
-            url: item.url || null,
+            url: item.url,
             thumbnail: item.images?.jpg?.image_url || null,
             rating: item.score || null,
             episodes: item.episodes || null,
@@ -40,22 +44,17 @@ module.exports = (app) => {
             type: item.type || null,
             year: item.year || null,
             season: item.season || null,
+            trailer: item.trailer?.url || null,
+            duration: item.duration || null,
             source: 'MyAnimeList (Jikan API)'
           });
         });
       }
 
-      const totalPages = Math.ceil((data.pagination?.items?.total || 0) / 20);
-      const currentPage = parseInt(page);
-
       return res.json({
         status: true,
         result: {
           query: query,
-          current_page: currentPage,
-          total_pages: totalPages > 0 ? totalPages : 5,
-          next_page: currentPage < totalPages ? `/api/anime/search?query=${encodeURIComponent(query)}&page=${currentPage + 1}` : null,
-          prev_page: currentPage > 1 ? `/api/anime/search?query=${encodeURIComponent(query)}&page=${currentPage - 1}` : null,
           total_results: data.pagination?.items?.total || 0,
           data: results
         }
