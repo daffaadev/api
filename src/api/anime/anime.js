@@ -12,7 +12,7 @@ module.exports = (app) => {
 
       const axios = require('axios');
       
-      // Search dari Jikan
+      // Pake Jikan API
       const searchResponse = await axios.get(`https://api.jikan.moe/v4/anime`, {
         params: {
           q: query,
@@ -24,18 +24,27 @@ module.exports = (app) => {
         timeout: 30000
       });
 
-      const results = searchResponse.data.data.map(anime => ({
-        mal_id: anime.mal_id,
-        title: anime.title,
-        thumbnail: anime.images?.jpg?.image_url || null,
-        episodes: anime.episodes || 0,
-        status: anime.status || null,
-        synopsis: anime.synopsis || null,
-        // Link streaming dari gogoanime (lu bisa akses langsung)
-        watch_url: `https://gogoanime.gg/category/${anime.title.toLowerCase().replace(/ /g, '-')}`,
-        // Atau pake alternate domain
-        watch_url_alt: `https://animepahe.com/anime/${anime.mal_id}`
-      }));
+      const results = searchResponse.data.data.map(anime => {
+        // Bikin slug dari title
+        const slug = anime.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+
+        return {
+          mal_id: anime.mal_id,
+          title: anime.title,
+          thumbnail: anime.images?.jpg?.image_url || null,
+          episodes: anime.episodes || 0,
+          status: anime.status || null,
+          synopsis: anime.synopsis || null,
+          watch_url: `https://gogoanime.gg/category/${slug}`,
+          watch_url_alt: `https://animepahe.com/anime/${anime.mal_id}`,
+          // Tambahin link streaming langsung
+          stream_url: `https://gogoanime.gg/${slug}-episode-1`,
+          stream_url_alt: `https://animepahe.com/play/${anime.mal_id}/1`
+        };
+      });
 
       return res.json({
         status: true,
