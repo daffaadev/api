@@ -39,7 +39,9 @@ module.exports = (app) => {
           watch_url: `https://gogoanime.gg/category/${slug}`,
           watch_url_alt: `https://animepahe.com/anime/${anime.mal_id}`,
           stream_url: `https://gogoanime.gg/${slug}-episode-1`,
-          stream_url_alt: `https://animepahe.com/play/${anime.mal_id}/1`
+          stream_url_alt: `https://animepahe.com/play/${anime.mal_id}/1`,
+          download_mp4: `https://gogoanime.gg/${slug}-episode-1`,
+          download_mp4_alt: `https://animepahe.com/play/${anime.mal_id}/1`
         };
       });
 
