@@ -13,11 +13,10 @@ module.exports = (app) => {
       const axios = require('axios');
       const cheerio = require('cheerio');
 
-      // Pake API alternatif - consumet (gogoanime)
-      const response = await axios.get(`https://api.consumet.org/anime/gogoanime/${encodeURIComponent(query)}?page=${page}`, {
+      // Pake Jikan API (MyAnimeList) - NO BLOCK
+      const response = await axios.get(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&page=${page}&limit=20`, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Accept': 'application/json'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         },
         timeout: 30000
       });
@@ -25,24 +24,28 @@ module.exports = (app) => {
       const data = response.data;
       const results = [];
 
-      if (data.results) {
-        data.results.forEach((item) => {
+      if (data.data) {
+        data.data.forEach((item) => {
           results.push({
             title: item.title || 'No title',
-            url: `https://gogoanime.gg/category/${item.id}`,
-            thumbnail: item.image || null,
-            rating: item.rating || null,
-            episode: item.episodes || null,
+            title_english: item.title_english || null,
+            title_japanese: item.title_japanese || null,
+            url: item.url || null,
+            thumbnail: item.images?.jpg?.image_url || null,
+            rating: item.score || null,
+            episodes: item.episodes || null,
             status: item.status || null,
-            genres: item.genres || [],
+            genres: item.genres?.map(g => g.name) || [],
             synopsis: item.synopsis || null,
             type: item.type || null,
-            source: 'gogoanime (via consumet)'
+            year: item.year || null,
+            season: item.season || null,
+            source: 'MyAnimeList (Jikan API)'
           });
         });
       }
 
-      const totalPages = data.totalPages || 5;
+      const totalPages = Math.ceil((data.pagination?.items?.total || 0) / 20);
       const currentPage = parseInt(page);
 
       return res.json({
@@ -50,11 +53,11 @@ module.exports = (app) => {
         result: {
           query: query,
           current_page: currentPage,
-          total_pages: totalPages,
+          total_pages: totalPages > 0 ? totalPages : 5,
           next_page: currentPage < totalPages ? `/api/anime/search?query=${encodeURIComponent(query)}&page=${currentPage + 1}` : null,
           prev_page: currentPage > 1 ? `/api/anime/search?query=${encodeURIComponent(query)}&page=${currentPage - 1}` : null,
-          total_results: results.length,
-          data: results.slice(0, 20)
+          total_results: data.pagination?.items?.total || 0,
+          data: results
         }
       });
 
