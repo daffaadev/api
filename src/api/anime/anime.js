@@ -12,7 +12,6 @@ module.exports = (app) => {
 
       const axios = require('axios');
       
-      // Pake Jikan API
       const searchResponse = await axios.get(`https://api.jikan.moe/v4/anime`, {
         params: {
           q: query,
@@ -25,7 +24,6 @@ module.exports = (app) => {
       });
 
       const results = searchResponse.data.data.map(anime => {
-        // Bikin slug dari title
         const slug = anime.title
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
@@ -40,7 +38,6 @@ module.exports = (app) => {
           synopsis: anime.synopsis || null,
           watch_url: `https://gogoanime.gg/category/${slug}`,
           watch_url_alt: `https://animepahe.com/anime/${anime.mal_id}`,
-          // Tambahin link streaming langsung
           stream_url: `https://gogoanime.gg/${slug}-episode-1`,
           stream_url_alt: `https://animepahe.com/play/${anime.mal_id}/1`
         };
