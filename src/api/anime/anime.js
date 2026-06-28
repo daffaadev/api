@@ -13,51 +13,21 @@ module.exports = (app) => {
       const axios = require('axios');
       const cheerio = require('cheerio');
 
-      // Pake otakudesu (blogspot) pake domain alternatif
-      const domains = [
-        'https://otakudesu.blog',
-        'https://otakudesu.art',
-        'https://otakudesu.uno',
-        'https://otakudesu.tv'
-      ];
+      const response = await axios.get(`https://otakudesu.blog/?s=${encodeURIComponent(query)}`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'id-ID,id;q=0.9'
+        },
+        timeout: 30000,
+        httpsAgent: new (require('https').Agent)({
+          rejectUnauthorized: false
+        })
+      });
 
-      let html = '';
-      let success = false;
-
-      for (const domain of domains) {
-        try {
-          const response = await axios.get(`${domain}/?s=${encodeURIComponent(query)}`, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-              'Accept-Language': 'id-ID,id;q=0.9',
-              'Referer': 'https://otakudesu.blog/'
-            },
-            timeout: 30000,
-            httpsAgent: new (require('https').Agent)({
-              rejectUnauthorized: false
-            })
-          });
-
-          html = response.data;
-          success = true;
-          break;
-        } catch (e) {
-          continue;
-        }
-      }
-
-      if (!success) {
-        return res.status(404).json({
-          status: false,
-          error: 'Gagal mengakses otakudesu'
-        });
-      }
-
-      const $ = cheerio.load(html);
+      const $ = cheerio.load(response.data);
       const results = [];
 
-      // Selector untuk otakudesu
       $('.blok, .listanime, .col-anime, .item, .post, article, .entry').each((i, el) => {
         const title = $(el).find('.title, h2, h3, .entry-title, a').first().text().trim();
         const link = $(el).find('a').first().attr('href');
@@ -82,39 +52,6 @@ module.exports = (app) => {
           });
         }
       });
-
-      // Kalo gak dapet hasil, coba pake Jikan API
-      if (results.length === 0) {
-        const jikanResponse = await axios.get(`https://api.jikan.moe/v4/anime`, {
-          params: {
-            q: query,
-            limit: 10
-          },
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          },
-          timeout: 30000
-        });
-
-        jikanResponse.data.data.forEach(anime => {
-          const slug = anime.title
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
-
-          results.push({
-            mal_id: anime.mal_id,
-            title: anime.title,
-            thumbnail: anime.images?.jpg?.image_url || null,
-            episodes: anime.episodes || 0,
-            status: anime.status || null,
-            synopsis: anime.synopsis || null,
-            watch_url: `https://gogoanime.gg/category/${slug}`,
-            download_mp4: `https://gogoanime.gg/${slug}-episode-1`,
-            source: 'jikan+gogoanime'
-          });
-        });
-      }
 
       return res.json({
         status: true,
